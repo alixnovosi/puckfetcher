@@ -6,7 +6,6 @@ from __future__ import unicode_literals
 import collections
 import logging
 import os
-
 from enum import Enum
 
 import umsgpack
@@ -47,30 +46,7 @@ class Config(object):
         # have changed.
         self.cache_map = {"by_name": {}, "by_url": {}}
 
-        command_pairs = (
-            (Command.update,
-             "Update all subscriptions. Will also download sub queues."),
-            (Command.list,
-             "List current subscriptions and their status."),
-            (Command.details,
-             "Provide details on one subscription's entries and queue status."),
-            (Command.enqueue,
-             "Add to a sub's download queue. Items will be skipped if already in queue, or " +
-             "invalid."),
-            (Command.mark,
-             "Mark a subscription entry as downloaded."),
-            (Command.unmark,
-             "Mark a subscription entry as not downloaded. Will not queue for download."),
-            (Command.download_queue, "Download a subscription's full queue. Files with the same " +
-             "name as a to-be-downloaded entry will be overridden."))
-
-        self.commands = collections.OrderedDict(command_pairs)
-
-    # "Public" functions.
-    def get_commands(self):
-        """Provide commands that can be used on this config."""
-        return self.commands
-
+    # "Public" class functions.
     def load_state(self):
         """Load config file, and load subscription cache if we haven't yet."""
         self._load_user_settings()
@@ -113,11 +89,7 @@ class Config(object):
     def get_subs(self):
         """Provie list of subscription names. Load state if we haven't."""
         _ensure_loaded(self)
-        subs = []
-        for sub in self.subscriptions:
-            subs.append(sub.name)
-
-        return subs
+        return map(lambda sub: sub.name, self.subscriptions)
 
     def update(self):
         """Update all subscriptions once. Return True if we successfully updated."""
@@ -328,6 +300,27 @@ class Config(object):
 
         return True
 
+# "Public" functions.
+def get_commands():
+    """Provide commands that can be used on this config."""
+    return collections.OrderedDict((
+        (Command.update,
+         "Update all subscriptions. Will also download sub queues."),
+        (Command.list,
+         "List current subscriptions and their status."),
+        (Command.details,
+         "Provide details on one subscription's entries and queue status."),
+        (Command.enqueue,
+         "Add to a sub's download queue. Items will be skipped if already in queue, or " +
+         "invalid."),
+        (Command.mark,
+         "Mark a subscription entry as downloaded."),
+        (Command.unmark,
+         "Mark a subscription entry as not downloaded. Will not queue for download."),
+        (Command.download_queue, "Download a subscription's full queue. Files with the same " +
+         "name as a to-be-downloaded entry will be overridden.")))
+
+# "Private" functions.
 def _ensure_loaded(config):
     if not config.state_loaded:
         LOG.debug("State not loaded from config file and cache - loading!")

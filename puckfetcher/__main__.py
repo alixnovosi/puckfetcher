@@ -10,12 +10,13 @@ from logging.handlers import RotatingFileHandler
 import os
 import sys
 import textwrap
-
 # NOTE - Python 2 shim.
 # pylint: disable=redefined-builtin
 from builtins import input
 
 from clint.textui import prompt
+# NOTE - Python 2 shim.
+from future.utils import viewitems
 
 import puckfetcher.constants as CONSTANTS
 import puckfetcher.config as Config
@@ -44,9 +45,8 @@ def main():
     command_options = [{"selector": str(index), "prompt": "Exit.", "return": "exit"}]
 
     index += 1
-    config_commands = config.get_commands()
-    for key in config_commands:
-        value = config.commands[key]
+    config_commands = Config.get_commands()
+    for (key, value) in viewitems(config_commands):
         command_options.append({"selector": str(index), "prompt": value, "return": key.name})
         index += 1
 
@@ -135,7 +135,7 @@ def _choose_sub(config):
         return
 
     subscription_options = []
-    pad_num = len(str(len(sub_names)))
+    pad_num = len(str(len(list(sub_names))))
     for i, sub_name in enumerate(sub_names):
         subscription_options.append(
             {"selector": str(i + 1).zfill(pad_num), "prompt": sub_name, "return": i})

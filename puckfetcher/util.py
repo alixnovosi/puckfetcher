@@ -8,7 +8,6 @@ import os
 import time
 
 import requests
-
 from clint.textui import progress
 
 LOG = logging.getLogger("root")
@@ -23,8 +22,8 @@ def ensure_dir(directory):
 
 def expand(directory):
     """Apply expanduser and expandvars to directory to expand '~' and env vars."""
-    temp1 = os.path.expanduser(directory)
-    return os.path.expandvars(temp1)
+    temp = os.path.expanduser(directory)
+    return os.path.expandvars(temp)
 
 def generate_downloader(headers, args):
     """Create function to download with rate limiting and text progress."""

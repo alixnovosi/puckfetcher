@@ -12,7 +12,6 @@ import platform
 import textwrap
 import time
 from time import mktime
-
 # NOTE - Python 2 shim.
 # pylint: disable=redefined-builtin
 from builtins import range
@@ -309,11 +308,7 @@ class Subscription(object):
         """
         Mark entries as downloaded for this subscription. Do not download or do anything else.
         """
-        actual_nums = _filter_nums(nums, 0, len(self.feed_state.entries))
-
-        for one_indexed_num in actual_nums:
-            num = one_indexed_num - 1
-            self.feed_state.entries_state_dict[num] = True
+        actual_nums = self._mark_helper(True, nums)
 
         LOG.info("Items marked as downloaded for %s: %s", self.name, actual_nums)
         return actual_nums
@@ -322,11 +317,7 @@ class Subscription(object):
         """
         Mark entries as not downloaded for this subscription. Do not download or do anything else.
         """
-        actual_nums = _filter_nums(nums, 0, len(self.feed_state.entries))
-
-        for one_indexed_num in actual_nums:
-            num = one_indexed_num - 1
-            self.feed_state.entries_state_dict[num] = False
+        actual_nums = self._mark_helper(False, nums)
 
         LOG.info("Items marked as not downloaded for %s: %s", self.name, actual_nums)
         return actual_nums
@@ -399,9 +390,11 @@ class Subscription(object):
         entry_indicators = []
         for entry in range(num_entries):
             if self.feed_state.entries_state_dict.get(entry, False):
-                entry_indicators.append("{}+".format(str(entry + 1).zfill(pad_num)))
+                symb = "+"
             else:
-                entry_indicators.append("{}-".format(str(entry + 1).zfill(pad_num)))
+                symb = "-"
+
+            entry_indicators.append("{}{}".format(str(entry + 1).zfill(pad_num), symb))
 
         detail_lines.append(" ".join(entry_indicators))
         details = "\n".join(detail_lines)
@@ -502,6 +495,15 @@ class Subscription(object):
 
         else:
             return (parsed, UpdateResult.SUCCESS)
+
+    def _mark_helper(self, bool, nums):
+        actual_nums = _filter_nums(nums, 0, len(self.feed_state.entries))
+
+        for one_indexed_num in actual_nums:
+            num = one_indexed_num - 1
+            self.feed_state.entries_state_dict[num] = bool
+
+        return actual_nums
 
     def _handle_http_codes(self, parsed):
         """
