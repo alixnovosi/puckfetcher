@@ -66,6 +66,7 @@ class Config(object):
              "name as a to-be-downloaded entry will be overridden."),
             (Command.summarize, "Summarize subscription entries downloaded in this session."),
             (Command.summarize_sub, "Summarize recent entries downloaded for a specific sub."),
+            (Command.clear_session_summary, "Clear summary of recently downloaded entries."),
         )
 
         self.commands = collections.OrderedDict(command_pairs)
@@ -216,14 +217,13 @@ class Config(object):
             lines.append("No items downloaded in this session.")
             lines.append("")
 
-        # Skip subs we haven't downloaded anything for in this session.
         for sub in self.subscriptions:
             summary_list = list(sub.session_summary())[0:SUMMARY_LIMIT]
             if len(summary_list) > 0:
                 lines.append(sub.name)
 
                 for item in summary_list:
-                    lines.append("    {}".format(item))
+                    lines.append("    {} [NEW]".format(item))
 
                 lines.append("")
 
@@ -249,6 +249,10 @@ class Config(object):
         lines.append("")
 
         LOG.info("\n".join(lines))
+
+    def clear_session_summary(self) -> None:
+        """Clear the session summary of downloaded episodes."""
+        map(lambda x: x.clear_session_summary(), self.subscriptions)
 
     def download_queue(self, sub_index: int) -> None:
         """Download one sub's download queue."""
@@ -385,6 +389,7 @@ class Command(enum.Enum):
     details = 300
     summarize_sub = 400
     summarize = 500
+    clear_session_summary = 550
     enqueue = 600
     mark = 700
     unmark = 800

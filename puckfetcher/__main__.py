@@ -91,6 +91,9 @@ def _handle_command(command: str, conf: config.Config,
         elif command == config.Command.list.name:
             conf.list()
 
+        elif command == config.Command.clear_session_summary:
+            conf.clear_session_summary()
+
         elif command == config.Command.summarize.name:
             conf.summarize()
             input("Press enter when done.")

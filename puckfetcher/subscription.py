@@ -471,6 +471,11 @@ class Subscription(object):
         return ["{} (#{})".format(item["name"], item["number"])
                 for item in self.feed_state.summary_queue]
 
+    def clear_session_summary(self) -> None:
+        """Clear session summary for this subscription."""
+        for item in self.feed_state.summary_queue:
+            item["is_this_session"] = False
+
     def as_config_yaml(self) -> Mapping[str, Any]:
         """Return self as config file YAML."""
 
